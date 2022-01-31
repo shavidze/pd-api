@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace Application.AbstractParser
 {
-    public interface IParser<T> where T : class
+    public interface IParser
     {
-        Task<List<Image>> ParseAsync(T model);
+        Task<List<Image>> ParseAsync();
     }
 }

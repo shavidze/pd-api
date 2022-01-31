@@ -10,14 +10,21 @@ using System.Threading.Tasks;
 
 namespace Application.PdfParser
 {
-    public class PdfParser : IParser<PdfModel>
+    public class PdfParser : IParser
     {
-        public async Task<List<Image>> ParseAsync(PdfModel model)
+        private PdfModel _model;
+
+        private PdfParser(PdfModel model)
         {
-            if (model.File == null)
+            this._model = model;
+        }
+
+        public async Task<List<Image>> ParseAsync()
+        {
+            if (_model.File == null)
                 throw new ArgumentNullException("File doesn't exist");
 
-            var file = model.File;
+            var file = _model.File;
 
             var fileContent = default(List<byte>);
 
@@ -41,5 +48,7 @@ namespace Application.PdfParser
 
             return images;
         }
+
+        public static IParser Create(PdfModel model) => new PdfParser(model);
     }
 }

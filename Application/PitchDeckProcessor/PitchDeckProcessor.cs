@@ -1,4 +1,5 @@
 ﻿using Application.AbstractParser;
+using Application.Factory;
 using Application.ImageToMemorySaver;
 using Application.PitchDeckExecutors.Commands;
 using Application.RequestModel;
@@ -19,16 +20,17 @@ namespace Application.PitchDeckProcessor
         private readonly IServiceProvider _serviceProvider;
         private readonly IImageToMemorySaver _imageToMemorySaver;
         private readonly IDispatcher _dispatcher;
+        private readonly IParserFactory _parserFactory;
         private readonly List<string> _allowedExtensions;
 
-        public PitchDeckProccessor(IServiceProvider serviceProvider,
-                                   IImageToMemorySaver imageToMemorySaver,
+        public PitchDeckProccessor(IImageToMemorySaver imageToMemorySaver,
                                    IDispatcher dispatcher,
-                                   IConfiguration configuration)
+                                   IConfiguration configuration,
+                                   IParserFactory parserFactory)
         {
-            _serviceProvider = serviceProvider;
             _imageToMemorySaver = imageToMemorySaver;
             _dispatcher = dispatcher;
+            _parserFactory = parserFactory;
             _allowedExtensions = configuration.GetSection("AllowedFileExtensions").AsEnumerable().Select(x => x.Value).ToList();
         }
 
@@ -42,18 +44,12 @@ namespace Application.PitchDeckProcessor
             if (!_allowedExtensions.Contains(extension))
                 throw new Exception("Not Allowed File Extension");
 
-            var images = default(List<Image>);
+            var parser = _parserFactory.GetParser(file);
 
-            if (extension.Contains("pdf"))
-            {
-                var pdfParser = (IParser<PdfModel>)_serviceProvider.GetService(typeof(IParser<PdfModel>));               
-                images = await pdfParser.ParseAsync(PdfModel.Create(file));
-            }
-            else if (extension.Contains("ppt"))
-            {
-                var pdfParser = (IParser<PPtModel>)_serviceProvider.GetService(typeof(IParser<PPtModel>));
-                images = await pdfParser.ParseAsync(PPtModel.Create(file));
-            }
+            if (parser == null)
+                throw new Exception("Parser is not provided");
+
+            var images = await parser.ParseAsync();
 
             if (images != null && images.Any())
             {

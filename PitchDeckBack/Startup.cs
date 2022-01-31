@@ -1,4 +1,5 @@
 using Application.AbstractParser;
+using Application.Factory;
 using Application.ImageToMemorySaver;
 using Application.PdfParser;
 using Application.PitchDeckExecutors;
@@ -46,9 +47,6 @@ namespace PitchDeckBack
             services.AddDbContext<PitchDeckDbContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("PitchDeckConnectionString")));
 
-            services.AddScoped<IParser<PdfModel>, PdfParser>();
-            services.AddScoped<IParser<PPtModel>, PPTParser>();
-
             services.AddScoped<IPitchDeckProccessor, PitchDeckProccessor>();
 
             services.AddScoped<IImageToMemorySaver, ImageToMemorySaver>();
@@ -64,6 +62,8 @@ namespace PitchDeckBack
             services.AddScoped<IQueryDispatcher, QueryDispatcher>();
 
             services.AddScoped<IDispatcher, Dispatcher>();
+
+            services.AddScoped<IParserFactory, ParserFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -9,16 +9,23 @@ using System.Threading.Tasks;
 
 namespace Application.PPTParser
 {
-    public class PPTParser : IParser<PPtModel>
+    public class PPTParser : IParser
     {
-        public async Task<List<Image>> ParseAsync(PPtModel model)
+        private readonly PPtModel _model;
+
+        private PPTParser(PPtModel model)
         {
-            if (model.File == null)
+            _model = model;
+        }
+
+        public async Task<List<Image>> ParseAsync()
+        {
+            if (_model.File == null)
                 throw new ArgumentNullException("File doesn't exist");
 
             var images = new List<Image>();
 
-            var file = model.File;
+            var file = _model.File;
 
             using (var ms = new MemoryStream())
             {
@@ -34,7 +41,6 @@ namespace Application.PPTParser
                             bmp.Save(tempStr, System.Drawing.Imaging.ImageFormat.Png);
 
                             images.Add(Image.FromStream(tempStr));
-
                         }
                     }
                 }
@@ -42,5 +48,7 @@ namespace Application.PPTParser
 
             return images;
         }
+
+        public static PPTParser Create(PPtModel model) => new PPTParser(model);
     }
 }
