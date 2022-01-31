@@ -31,7 +31,10 @@ namespace Application.PitchDeckProcessor
             _imageToMemorySaver = imageToMemorySaver;
             _dispatcher = dispatcher;
             _parserFactory = parserFactory;
-            _allowedExtensions = configuration.GetSection("AllowedFileExtensions").AsEnumerable().Select(x => x.Value).ToList();
+            _allowedExtensions = configuration.GetSection("AllowedFileExtensions")
+                                              .AsEnumerable()
+                                              .Select(x => x.Value)
+                                              .ToList();
         }
 
         public async Task<CommandResult> ProccessAsync(IFormFile file)
